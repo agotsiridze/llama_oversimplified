@@ -1,0 +1,31 @@
+services:
+#client side is not done, use GUI instead
+  chat_client:
+    build: ./chatbot
+    container_name: chat_client
+    volumes:
+      - ./chatbot/workplace:/workplace
+    stdin_open: true
+    tty: true
+
+  llama_cpp_server:
+    build:
+      context: ./llama_server
+      args:
+        CUDA_VERSION: ${CUDA_VERSION}
+    container_name: llama_cpp_server
+    env_file: ".env"
+    shm_size: '16g'
+    volumes:
+      - ./llama_server:/app
+    ports:
+      - "${PORT}:${PORT}"
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
