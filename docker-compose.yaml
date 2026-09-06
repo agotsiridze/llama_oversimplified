@@ -13,6 +13,7 @@ services:
       context: ./llama_server
       args:
         CUDA_VERSION: ${CUDA_VERSION}
+        PORT: ${PORT}
     container_name: llama_cpp_server
     env_file: ".env"
     shm_size: '16g'
