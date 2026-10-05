@@ -1,2 +1,5 @@
 .env
 llama_server/models/
+*/__pycache__/*
+__pycache__/
+logs/
