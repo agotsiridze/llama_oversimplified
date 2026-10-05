@@ -23,10 +23,14 @@ services:
       - "${PORT}:${PORT}"
     stdin_open: true
     tty: true
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    devices:
+      - nvidia.com/gpu=all
+    # deploy:
+    #   resources:
+    #     reservations:
+    #     devices:
+    #       - nvidia.com/gpu=all
+    #       # devices:
+    #       #   - driver: nvidia
+    #       #     count: all
+    #       #     capabilities: [gpu]
