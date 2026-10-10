@@ -6,7 +6,7 @@ services:
     volumes:
       - ./chatbot/workplace:/workplace
     ports:
-      7860:7860
+      - 7860:7860
     stdin_open: true
     tty: true
 

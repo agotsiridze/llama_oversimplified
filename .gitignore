@@ -3,3 +3,4 @@ llama_server/models/
 */__pycache__/*
 __pycache__/
 logs/
+chatbot/workplace/openAIchat/temp.txt
