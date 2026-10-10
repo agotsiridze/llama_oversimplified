@@ -45,23 +45,29 @@ def respond(message: dict[str, str], gradio_history: list[str], thinking: bool):
     return reply.text
 
 
-with gr.Blocks() as demo:
-    with gr.Row():
-        link_box = gr.Textbox(label="Image link", placeholder="https://...", scale=4)
-        add_btn = gr.Button("Add", scale=1)
-    added = gr.Textbox(label="Links for the next message", interactive=False)
+with gr.Blocks(fill_height=True) as demo:
     chat = gr.ChatInterface(
         respond,
+        chatbot=gr.Chatbot(height="75vh", render=False),
         additional_inputs=[gr.Checkbox(label="Reasoning", value=False, render=False)],
-        additional_inputs_accordion=gr.Accordion("Settings", open=True, render=False),
+        additional_inputs_accordion=gr.Accordion("Settings", open=False, render=False),
         multimodal=True,
         textbox=gr.MultimodalTextbox(
             file_types=["image"], placeholder="Message, or attach an image"
         ),
-        title="Local chat",
     )
+    with gr.Accordion("Image links", open=False):
+        with gr.Row():
+            link_box = gr.Textbox(show_label=False, placeholder="https://...", scale=5)
+            add_btn = gr.Button("Add", scale=1)
+        added = gr.Textbox(label="Links for the next message", interactive=False)
+
     add_btn.click(add_link, link_box, [link_box, added])
     chat.chatbot.change(lambda: "\n".join(pending_links), None, added)
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=7860,
+        theme=gr.themes.Default(text_size="lg"),
+    )
