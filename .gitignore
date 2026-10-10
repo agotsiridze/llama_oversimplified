@@ -4,3 +4,4 @@ llama_server/models/
 __pycache__/
 logs/
 chatbot/workplace/openAIchat/temp.txt
+AGENTS.md
