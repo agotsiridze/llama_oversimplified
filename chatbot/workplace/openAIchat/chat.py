@@ -3,8 +3,8 @@ from typing import Any
 from openai import OpenAI
 
 from config import OpenAIConfig
-from schemas import Message, Content, Roles
-from img_refferences import get_image_contents
+from schemas import Message, Content, Roles, ChatReply
+from img_refferences import image_contents, image_content_from_internet
 from utils import Summary
 
 client = OpenAI(base_url="http://llama_cpp_server:8081/v1", api_key="none")
@@ -47,41 +47,36 @@ def handle_tool_calls(
 
 
 def message_in_chat(
-    system_prompts: Message, history: list[Message], has_tools: bool = True
-) -> str:
+    system_prompts: Message, history: list[Message], thinking: bool = False
+) -> ChatReply:
     history_dict = [msg.model_dump(mode="json", exclude_none=True) for msg in history]
     system_prompt_dict = system_prompts.model_dump(mode="json", exclude_none=True)
-
-    tool_config = {}
-    if has_tools:
-        tool_config["tools"] = [SUMMARY_TOOL_SCHEMA]
-        tool_config["tool_choice"] = "auto"
 
     response = client.chat.completions.create(
         messages=[system_prompt_dict] + history_dict,
         **openAI_config.model_dump(),
-        **tool_config,
-        # extra_body={"chat_template_kwargs": {"enable_thinking": True}},
+        extra_body={"chat_template_kwargs": {"enable_thinking": thinking}},
     )
-    assistant_message = response.choices[0].message
-    if has_tools and assistant_message.tool_calls:
-        updated_history_dict = handle_tool_calls(response, history_dict)
-        final_response = client.chat.completions.create(
-            messages=[system_prompt_dict] + updated_history_dict,
-            **openAI_config.model_dump(),
-        )
-        return final_response.choices[0].message.content
-    return assistant_message.content
+    choice = response.choices[0]
+    reply = ChatReply(
+        text=choice.message.content or "",
+        thinking=getattr(choice.message, "reasoning_content", None) or "",
+        finish_reason=choice.finish_reason,
+    )
+    return reply
 
 
-def message_factory(input_text: str, role: Roles = Roles.USER) -> Message:
-    if role is Roles.USER:
-        image_contents = get_image_contents()
-        if len(image_contents) > 0:
-            text_content = Content(text=input_text)
-            data_to_send = [text_content] + image_contents
-            message = Message(role=role, content=data_to_send)
-            return message
-        return Message(role=role, content=input_text)
-    else:
-        return Message(role=role, content=input_text)
+def message_factory(
+    input_text: str,
+    role: Roles = Roles.USER,
+    img_paths: list[str] = [],
+    img_urls: list[str] = [],
+) -> Message:
+    if img_paths or img_urls:
+        text_content = Content(text=input_text)
+        images = image_contents(img_paths)
+        from_internet = image_content_from_internet(img_urls)
+        data_to_send = [text_content] + images + from_internet
+        message = Message(role=role, content=data_to_send)
+        return message
+    return Message(role=role, content=input_text)

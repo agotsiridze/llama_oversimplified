@@ -1,8 +1,10 @@
-from config import config
+from config import Config
 from schemas import Roles, Message
 
 import os
 import base64
+
+config = Config()
 
 
 def chat_to_model(

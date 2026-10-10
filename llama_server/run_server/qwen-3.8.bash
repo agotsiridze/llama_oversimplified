@@ -1,9 +1,11 @@
 MODEL="/app/models/base_models/Qwen3.8-27B-Unleashed-UD-Q6_K.gguf"
 SERVER="/src/llama-server"
+MMPROJ="/app/models/mmproj/qwen-3.8-mmproj-Unleashed-f16.gguf"
 
 
 $SERVER \
   --model $MODEL \
+  --mmproj $MMPROJ \
   --n-gpu-layers -1 \
   --n-gpu-layers-draft -1 \
   --ctx-size 131072 \

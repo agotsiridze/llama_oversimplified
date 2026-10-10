@@ -1,3 +1,3 @@
-from .image_refferences import get_image_contents
+from .image_refferences import image_contents, image_content_from_internet
 
-__all__ = ["get_image_contents"]
+__all__ = ["image_contents", "image_content_from_internet"]

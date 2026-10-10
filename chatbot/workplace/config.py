@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel
 
 
@@ -11,7 +13,8 @@ class Config(BaseModel):
 
 class OpenAIConfig(BaseModel):
     model: str = "gemma"
-    max_tokens: int = 1024
+    max_tokens: int = 8192
     temperature: float = 0.1
     top_p: float = 0.9
     frequency_penalty: float = 0.1
+    # extra_body: dict[str, Any] = {"chat_template_kwargs": {"enable_thinking": False}}
